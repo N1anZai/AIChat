@@ -1,10 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
+<meta charset="UTF-8">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <title>AI 聊天助手</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-$END$
+
+<div class="container">
+    <div class="header">
+        <h1>AI 聊天助手</h1>
+        <div class="student-info">
+            <p><strong>张浩新</strong> | 学号：202535720128</p>
+        </div>
+    </div>
+
+    <div id="chatbox"></div>
+
+    <div class="input-area">
+        <textarea id="input" placeholder="请输入您的问题..." rows="3"></textarea>
+        <button onclick="send()">发送</button>
+    </div>
+
+    <div class="action-buttons">
+        <button onclick="clearChat()" class="clear-btn">🗑️ 清除聊天记录</button>
+    </div>
+
+    <div class="temperature-control">
+        <label for="temp">🌡️ Temperature (温度): <span id="tempValue">0.7</span></label>
+        <input type="range" min="0" max="1" step="0.1" id="temp" value="0.7" class="temp-slider" oninput="updateTempValue(this.value)">
+        <p class="info-text">💡 Temperature 控制 AI 回复的创造性：值越低越严谨，值越高越有创造力</p>
+    </div>
+</div>
+
+<script src="app.js"></script>
+
 </body>
 </html>

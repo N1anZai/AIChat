@@ -31,3 +31,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Security ###
+# Ignore environment variables file containing API keys
+.env
+*.env
+!*.env.example

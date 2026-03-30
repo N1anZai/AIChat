@@ -1,8 +1,8 @@
-package controller;
+package hx.aichat.aichat.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import service.DeepseekService;
+import hx.aichat.aichat.service.AliyunService;
 
 import java.util.Map;
 
@@ -11,7 +11,7 @@ import java.util.Map;
 public class ChatController {
 
     @Autowired
-    private DeepseekService service;
+    private AliyunService service;
 
     @PostMapping("/chat")
     public Map<String, String> chat(@RequestBody Map<String, Object> body) {
