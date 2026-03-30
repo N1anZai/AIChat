@@ -19,13 +19,28 @@ public class ChatController {
         System.out.println("请求参数：" + body);
         
         try {
-            String message = (String) body.get("message");
+            // 支持两种格式：messages(带上下文) 或 message(单条消息)
+            Object messagesObj = body.get("messages");
+            String singleMessage = (String) body.get("message");
             double temperature = Double.parseDouble(body.get("temperature").toString());
+            // 获取模型参数，默认为 qwen-plus
+            String model = body.containsKey("model") ? (String) body.get("model") : "qwen-plus";
             
-            System.out.println("消息内容：" + message);
             System.out.println("Temperature: " + temperature);
+            System.out.println("选择的模型：" + model);
 
-            String reply = service.getResponse(message, temperature);
+            String reply;
+            if (messagesObj != null) {
+                // 使用对话历史
+                System.out.println("使用对话历史模式");
+                reply = service.getResponseWithConversation((java.util.List<?>) messagesObj, temperature, model);
+            } else if (singleMessage != null) {
+                // 兼容旧的单条消息模式
+                System.out.println("消息内容：" + singleMessage);
+                reply = service.getResponse(singleMessage, temperature, model);
+            } else {
+                return Map.of("error", "缺少消息内容");
+            }
             
             System.out.println("服务返回：" + reply);
 

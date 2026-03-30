@@ -31,6 +31,26 @@ public class AliyunService {
     }
 
     public String getResponse(String message, double temperature) {
+        // 兼容旧方法，构造单条消息的列表
+        java.util.List<java.util.Map<String, Object>> messages = new java.util.ArrayList<>();
+        messages.add(java.util.Map.of("role", "user", "content", message));
+        return getResponseWithConversation(messages, temperature, "qwen-plus");
+    }
+    
+    public String getResponse(String message, double temperature, String model) {
+        // 兼容旧方法，构造单条消息的列表
+        java.util.List<java.util.Map<String, Object>> messages = new java.util.ArrayList<>();
+        messages.add(java.util.Map.of("role", "user", "content", message));
+        return getResponseWithConversation(messages, temperature, model);
+    }
+
+    @SuppressWarnings("unchecked")
+    public String getResponseWithConversation(java.util.List<?> messages, double temperature) {
+        return getResponseWithConversation(messages, temperature, "qwen-plus");
+    }
+    
+    @SuppressWarnings("unchecked")
+    public String getResponseWithConversation(java.util.List<?> messages, double temperature, String model) {
         HttpURLConnection conn = null;
         try {
             // 检查 API Key 是否为空
@@ -38,8 +58,33 @@ public class AliyunService {
                 return "Error: API Key 未设置，请检查环境变量 ALIYUN_API_KEY";
             }
             
+            // 构建包含对话历史的消息数组
+            StringBuilder messagesJson = new StringBuilder();
+            messagesJson.append("[");
+            for (int i = 0; i < messages.size(); i++) {
+                if (i > 0) messagesJson.append(",");
+                java.util.Map<String, Object> msg = (java.util.Map<String, Object>) messages.get(i);
+                String role = (String) msg.get("role");
+                String content = (String) msg.get("content");
+                messagesJson.append(String.format(
+                    "{\"role\":\"%s\",\"content\":\"%s\"}", 
+                    role, 
+                    escapeJson(content)
+                ));
+            }
+            messagesJson.append("]");
+            
+            // 使用标准 OpenAI 兼容格式 (支持对话历史)
+            String jsonInput = String.format("""
+            {
+              "model": "%s",
+              "messages": %s,
+              "temperature": %f
+            }
+            """, model, messagesJson.toString(), temperature);
+                
             URL url = new URL(apiUrl);
-    
+                
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Authorization", "Bearer " + apiKey);
@@ -47,20 +92,6 @@ public class AliyunService {
             conn.setDoOutput(true);
             conn.setConnectTimeout(10000);
             conn.setReadTimeout(60000);
-    
-            // 使用标准 OpenAI 兼容格式（修复角色错误）
-            String jsonInput = String.format("""
-            {
-              "model": "qwen-plus",
-              "messages": [
-                {
-                  "role": "user",
-                  "content": "%s"
-                }
-              ],
-              "temperature": %f
-            }
-            """, escapeJson(message), temperature);
     
             try (OutputStream os = conn.getOutputStream()) {
                 byte[] inputBytes = jsonInput.getBytes(StandardCharsets.UTF_8);
