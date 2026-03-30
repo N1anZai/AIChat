@@ -184,7 +184,7 @@ const res = await fetch("/chat", {
 **A**: 日常对话推荐 0.7，需要严谨回答时调低到 0.3，创意写作可调高到 0.9
 
 ### Q4: 如何修改默认端口 8080？
-**A**: 在 `application.properties` 中添加 `server.port=8081`
+**A**: 在 `application.properties` 中添加 `server.port=8081或者你想要的端口`
 
 ---
 
